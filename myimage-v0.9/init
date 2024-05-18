@@ -1,0 +1,29 @@
+#!/bin/bash
+export PATH=/usr/sbin:/usr/bin:/bin
+
+# insmod /lib/modules/6.5.0-26-generic/kernel/drivers/message/fusion/mptbase.ko
+# insmod /lib/modules/6.5.0-26-generic/kernel/drivers/message/fusion/mptscsih.ko
+# insmod /lib/modules/6.5.0-26-generic/kernel/drivers/scsi/scsi_transport_spi.ko
+# insmod /lib/modules/6.5.0-26-generic/kernel/drivers/message/fusion/mptspi.ko
+
+[ -d /dev ] || mkdir -m 0755 /dev
+[ -d /root ] || mkdir -m 0700 /root
+[ -d /sys ] || mkdir /sys
+[ -d /proc ] || mkdir /proc
+[ -d /run ] || mkdir /run
+mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
+mount -t proc -o nodev,noexec,nosuid proc /proc
+
+mount -t devtmpfs -o $dev_exec,nosuid,mode=0755 udev /dev
+
+log_level=info
+SYSTEMD_LOG_LEVEL=$log_level /lib/systemd/systemd-udevd --daemon --resolve-names=never
+udevadm trigger --type=subsystems --action=add
+udevadm trigger --type=devices --action=add
+udevadm settle || true
+
+modprobe -a mptspi sd_mod ext4
+mknod /dev/sda3 b 8 2
+mount -t ext4 /dev/sda3 /root
+
+exec /sbin/init

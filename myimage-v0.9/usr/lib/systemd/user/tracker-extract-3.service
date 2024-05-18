@@ -1,0 +1,15 @@
+[Unit]
+Description=Tracker metadata extractor
+ConditionUser=!root
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Tracker3.Miner.Extract
+ExecStart=/usr/libexec/tracker-extract-3
+Restart=on-failure
+# Don't restart after tracker daemon -k (aka tracker-control -k)
+RestartPreventExitStatus=SIGKILL
+Slice=background.slice
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,20 @@
+[Unit]
+Description=PipeWire Media Session Manager
+After=pipewire.service
+BindsTo=pipewire.service
+
+[Service]
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+Type=simple
+ExecStart=/usr/bin/pipewire-media-session
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pipewire.service
+Alias=pipewire-session-manager.service
